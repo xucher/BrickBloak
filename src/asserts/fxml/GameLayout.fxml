@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+
+<fx:root styleClass="scene-size" stylesheets="@../css/style.css" type="BorderPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <left>
+      <VBox fx:id="scoreBoard" styleClass="left-panel" />
+   </left>
+   <center>
+      <Pane fx:id="gameScene" styleClass="center-panel" />
+   </center>
+</fx:root>

@@ -1,19 +1,22 @@
 package application;
 
+import application.StateMachine.Attr;
+import components.WelcomeScene;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class BrickBlockGame extends Application{
-	public static final int WIDTH = 800;
-	public static final int HEIGHT = 600;
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		GameScene root = new GameScene(WIDTH, HEIGHT);
+		WelcomeScene welcomeScene = new WelcomeScene();
 		primaryStage.setTitle("BrickBlock");
-		primaryStage.setScene(new Scene(root, WIDTH, HEIGHT));
+		primaryStage.setScene(new Scene(welcomeScene));
 		primaryStage.show();
+		
+		StateMachine.getInstance().setAttr(Attr.STAGE, primaryStage);
 	}
+	
 	public static void main(String[] args) { launch(args); }
 }

@@ -1,0 +1,33 @@
+/* welcome scene */
+#title.label {
+	-fx-font-size: 25;
+}
+
+/* game scene layout*/
+.left-panel {
+	-fx-pref-width: 100;
+	-fx-pref-height: 600;
+}
+.center-panel {
+	-fx-pref-width: 800;
+	-fx-pref-height: 600;
+}
+
+/* scoreBoard */
+.name-label { }
+.value-label {
+	-fx-label-padding: 0 0 0 35;
+}
+
+
+
+
+.scene-size {
+	-fx-pref-width: 900;
+	-fx-pref-height: 600;
+}
+
+.button {
+	-fx-pref-width: 100;
+	-fx-pref-height: 30;
+}

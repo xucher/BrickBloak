@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<fx:root styleClass="scene-size" stylesheets="@../css/style.css" type="AnchorPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button fx:id="btn_begin" layoutX="288.0" layoutY="350.0" mnemonicParsing="false" text="开始游戏" />
+      <Button layoutX="513.0" layoutY="350.0" mnemonicParsing="false" text="退出游戏" />
+      <Label id="title" layoutX="388.0" layoutY="150.0" text="弹球打砖块" />
+   </children>
+</fx:root>

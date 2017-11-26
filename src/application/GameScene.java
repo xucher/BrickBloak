@@ -1,116 +1,142 @@
 package application;
 
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import application.StateMachine.State;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Parent;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.scene.Node;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import objects.Ball;
-import objects.BaseObject;
 import objects.Brick;
 import objects.MainBrick;
 
-public class GameScene extends Parent{
-	private int width;
-	private int height;
-	private Rectangle background;
+public class GameScene extends Pane {
 	private MainBrick mainBrick = new MainBrick();
-	private Ball ball = new Ball(15, 15, 15);
-	
+	private Ball ball = new Ball();
+	private DataProperties dataProperties;
 	private Timeline timeline;
-	private KeyFrame keyFrame;
-	private CopyOnWriteArrayList<Brick> bricks = new CopyOnWriteArrayList<>();
+	private LevelLoader levelLoader;
+	private CollisionHandler collisionHandler;
+	private List<Brick> bricks = Collections.synchronizedList(new ArrayList<>());
 	
-	public GameScene(int width, int height) {
-		this.width = width;
-		this.height =height;
-		initGameObjects();
-		initLevel();
-		initTimeLine();
+	public GameScene() {
+		setPrefWidth(Constant.GAME_SCENE_WIDTH);
+		setPrefHeight(Constant.GAME_SCENE_HEIGHT);
+		setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, null, null)));
+		
+		dataProperties = new DataProperties();
 	}
+	public void loadGame() {
+		initGameObjects();
+		initGameHelper();
+		// 初始化砖块
+		levelLoader.load(1);
+		initTimeLine();
+		setOnMouseClicked(event -> startTimeLine());
+	}
+	public class DataProperties {
+		public DoubleProperty scoreProperty = new SimpleDoubleProperty(0);
+		public IntegerProperty levelProperty = new SimpleIntegerProperty(1);
+		public IntegerProperty livesProperty = new SimpleIntegerProperty(Constant.INITIAL_LIVES);
+		
+		private DataProperties() { }
+		public Double getScore() { return scoreProperty.get(); }
+		public void addScore(Double score) { scoreProperty.set(getScore() + score);}
+		public int getLevel() { return levelProperty.get(); }
+		public void nextLevel() {
+			int nowLevel = levelProperty.get();
+			if (nowLevel >= Constant.MAX_LEVEL) {
+				
+			} else {
+				levelProperty.set(levelProperty.get() + 1);
+			}
+		}
+		public void loseLive() {
+			int leftLives = livesProperty.get();
+			if (leftLives <= 0) {
+				StateMachine.getInstance().changeToState(State.GAME_OVER);
+			} else {
+				livesProperty.set(leftLives - 1);
+			}
+		}
+	}
+	public DataProperties getData() { return dataProperties; }
 
 	private void initGameObjects() {
-		background = new Rectangle(0, 0, width, height);
-		background.setOnMouseMoved(event -> mainBrick.onMouseMove(event));
-		background.setFill(Color.BLACK);
-		
-		mainBrick.setX(0.0D);
-		mainBrick.setY(height - mainBrick.getHeight());
-		
-		ball.setX((mainBrick.getWidth() - ball.getWidth())/2);
-		ball.setY(height - mainBrick.getHeight() - ball.getHeight());
-		
-		getChildren().add(background);
 		getChildren().add(mainBrick);
 		getChildren().add(ball);
+		initObjectLayout();
 	}
-	
+	private void initGameHelper() {
+		levelLoader = new LevelLoader(this);
+		collisionHandler = new CollisionHandler(ball);
+	}
+	private void initObjectLayout() {
+		mainBrick.setLayoutX((getWidth() - mainBrick.getWidth())/ 2);
+		mainBrick.setLayoutY(getHeight() - mainBrick.getHeight());
+		ball.setCenterX(getWidth() / 2);
+		ball.setCenterY(getHeight() - 5 * mainBrick.getHeight());
+	}
 	private void initTimeLine() {
 		timeline = new Timeline();
 		timeline.setCycleCount(Timeline.INDEFINITE);
-		keyFrame = new KeyFrame(Duration.millis(10), new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				 ball.moveX(ball.getSpeedX());
-				 ball.moveY(ball.getSpeedY());
-				
-				// 到达左右边界
-				if (ball.getX() <= 0.0D ||
-						ball.getX() >= BrickBlockGame.WIDTH - ball.getWidth())
-					ball.setSpeedX(-ball.getSpeedX());
-				
-				// 到达上下边界
-				if (ball.getY() <= 0.0D ||
-						ball.getY() >= BrickBlockGame.HEIGHT - ball.getHeight())
-					ball.setSpeedY(-ball.getSpeedY());
-				
-			if (ball.isCollisionWith(mainBrick))
-				ball.setSpeedY(-ball.getSpeedY());
-				for (Brick brick: bricks) {
-					if (ball.isCollisionWith(brick)) {
-						ball.setSpeedY(-ball.getSpeedY());
-						if (bricks.size() > 6) {
-							brick.setHp(brick.getHp() - 1);
-							if (brick.getHp() <= 0) {
-								destroyObject(brick);
-							}
-						}
-						break;
-					}
-				}
-			}
+		KeyFrame keyFrame = new KeyFrame(Duration.millis(1), (event) -> {
+			if (bricks.size() == 0) enterNextLevel();
+			ball.move();
+			handleCollision();
 		});
 		timeline.getKeyFrames().add(keyFrame);
-		timeline.play();
 	}
 	
-	// 参数不能改变值
-	private void destroyObject(final BaseObject brick) {
-		FadeTransition fade = new FadeTransition(Duration.millis(200.0D), brick);  
+	private void handleCollision() {
+		collisionHandler.withMainBrick(mainBrick);
+		
+		for (Brick brick: bricks) {
+			if (collisionHandler.withGeneralBrick(brick)) {
+				if (brick.getHp() <= 0) {
+					dataProperties.addScore((double) brick.getScore());
+					destroyObject(brick);
+				}
+				break;
+			}
+		}
+	}
+	private void destroyObject(final Brick brick) {
+		FadeTransition fade = new FadeTransition(Duration.millis(100.0D), brick);  
     fade.setFromValue(1.0D);  
-    fade.setToValue(0.0D);  
-    fade.setOnFinished(new EventHandler<ActionEvent>() {  
-        public void handle(ActionEvent t) {  
-            getChildren().remove(brick);  
-        }  
-    });  
-    this.bricks.remove((Brick) brick);  
+    fade.setToValue(0.0D);
+    fade.setOnFinished((event) -> getChildren().remove(brick));  
+    bricks.remove(brick);  
     fade.play();
 	}
 	
-	private void initLevel() { LeverLoader.load(this, 1); }
+	private void startTimeLine() { 
+		setOnMouseMoved(event -> mainBrick.onMouseMove(event));
+		timeline.play();
+	}
+	public void pauseTimeLine() { timeline.pause(); }
+	public void resumeTimeLine() { timeline.play(); }
 	
-	public void addChild(Parent parent) {
-		getChildren().add(parent);
+	public void enterNextLevel() { 
+		pauseTimeLine();
+		dataProperties.nextLevel();
+		
+		initObjectLayout();
+		levelLoader.load(dataProperties.getLevel()); 
 	}
 	
-	public CopyOnWriteArrayList<Brick> getBricks() {  
-    return this.bricks;  
-	} 
+	public void addChild(Node node) { getChildren().add(node); }
+	public List<Brick> getBricks() { return bricks; }
 }

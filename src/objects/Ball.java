@@ -1,27 +1,34 @@
 package objects;
 
-import javafx.scene.effect.Lighting;
-import javafx.scene.paint.Color;
+import application.Constant;
 import javafx.scene.shape.Circle;
 
-public class Ball extends BaseObject {
-	private Circle circle;
-	private int speedX = 2;
-	private int speedY = -2;
-	public Ball(int centerX, int centerY, int radius) {
-		circle = new Circle(centerX, centerY, radius, Color.LIGHTBLUE);
-		circle.translateXProperty().bindBidirectional(getXProperty());
-		circle.translateYProperty().bindBidirectional(getYProperty());
-		circle.setEffect(new Lighting());
-		 
-		setWidth(2 * radius);
-		setHeight(2 * radius);
-		getChildren().add(circle);
+public class Ball extends Circle {
+	private double speedX = 0.5;
+	private double speedY = -0.5;
+	private int power = 1;
+	
+	public Ball() {
+		super(Constant.BALL_RADIUS);
 	}
-	
-	public int getSpeedX() { return speedX; }
-	public void setSpeedX(int speedX) { this.speedX = speedX; }
-	
-	public int getSpeedY() { return speedY; }
-	public void setSpeedY(int speedY) { this.speedY = speedY; }
+
+	public double getSpeedX() { return speedX; }
+	public void setSpeedX(double speedX) { this.speedX = speedX; }
+	public double getSpeedY() { return speedY; }
+	public void setSpeedY(double speedY) { this.speedY = speedY; }
+	public int getPower() { return power;} 
+	public void move() {
+		// 左右边界
+		if (getCenterX() <= getRadius() ||
+				getCenterX() >= Constant.GAME_SCENE_WIDTH - getRadius())
+			speedX = -speedX;
+		// 上下边界
+		if (getCenterY() <= getRadius() ||
+				getCenterY() >= Constant.GAME_SCENE_HEIGHT -getRadius())
+			speedY = -speedY;
+		
+		setCenterX(getCenterX() + speedX);
+		setCenterY(getCenterY() + speedY);
+	}
+	public void reverseSpeedY() { speedY = -speedY; }
 }
