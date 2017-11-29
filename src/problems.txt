@@ -1,2 +1,5 @@
 物品属性绑定
 碰撞检测
+
+/BrickBlock/src/application/CollisionChecker.java
+80行， 该方法只适用与球

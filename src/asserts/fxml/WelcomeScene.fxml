@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
@@ -8,8 +9,8 @@
 
 <fx:root styleClass="scene-size" stylesheets="@../css/style.css" type="AnchorPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Button fx:id="btn_begin" layoutX="288.0" layoutY="350.0" mnemonicParsing="false" text="开始游戏" />
-      <Button layoutX="513.0" layoutY="350.0" mnemonicParsing="false" text="退出游戏" />
-      <Label id="title" layoutX="388.0" layoutY="150.0" text="弹球打砖块" />
+      <Button fx:id="btn_begin" focusTraversable="false" layoutX="190.0" layoutY="322.0" mnemonicParsing="false" text="开始游戏"></Button>
+      <Button fx:id="btn_end" focusTraversable="false" layoutX="190.0" layoutY="375.0" mnemonicParsing="false" text="退出游戏" />
+      <Label fx:id="label_title" layoutX="153.0" layoutY="130.0" styleClass="title-label" text="弹球打砖块" />
    </children>
 </fx:root>

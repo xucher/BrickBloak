@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<fx:root styleClass="scene-size" stylesheets="@../css/style.css" type="AnchorPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label fx:id="label_title" layoutX="190.0" layoutY="126.0" styleClass="title-label" text="闯关成功" />
+      <Button fx:id="btn_nextLevel" layoutX="190.0" layoutY="285.0" mnemonicParsing="false" text="下一关" />
+   </children>
+</fx:root>

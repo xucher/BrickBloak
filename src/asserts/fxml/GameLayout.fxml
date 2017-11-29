@@ -5,11 +5,18 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 
-<fx:root styleClass="scene-size" stylesheets="@../css/style.css" type="BorderPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-   <left>
-      <VBox fx:id="scoreBoard" styleClass="left-panel" />
-   </left>
+<fx:root stylesheets="@../css/style.css" type="BorderPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <styleClass>
+      <String fx:value="scene-size" />
+      <String fx:value="game-layout" />
+   </styleClass>
    <center>
-      <Pane fx:id="gameScene" styleClass="center-panel" />
+      <Pane fx:id="gameScene" styleClass="center-panel" BorderPane.alignment="CENTER">
+         <children>
+            <Pane fx:id="scoreBoard" prefHeight="200.0" prefWidth="200.0" styleClass="top-panel" stylesheets="@../css/style.css" />
+         </children></Pane>
    </center>
+   <bottom>
+      <Pane fx:id="stateBar" prefHeight="200.0" prefWidth="200.0" styleClass="bottom-panel" BorderPane.alignment="CENTER" />
+   </bottom>
 </fx:root>

@@ -10,17 +10,20 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane prefHeight="271.0" prefWidth="436.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Rectangle arcHeight="25.0" arcWidth="20.0" fill="#1f93ff" height="25.0" layoutX="70.0" layoutY="69.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" translateX="5.0" width="100.0">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="30.0" layoutX="222.0" layoutY="157.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="102.0">
          <effect>
-            <ImageInput>
-               <source>
-                  <Image url="file:/D:/Coding/java/BrickBlock/src/asserts/images/bg_brick.jpg" />
-               </source>
-            </ImageInput>
+            <Lighting specularConstant="0.39" specularExponent="40.0" surfaceScale="2.43">
+               <bumpInput>
+                  <Shadow height="26.93" radius="12.1625" width="23.72" />
+               </bumpInput>
+               <light>
+                  <Light.Distant azimuth="70.11" elevation="111.98" />
+               </light>
+            </Lighting>
          </effect>
       </Rectangle>
+      <Button focusTraversable="false" layoutX="181.0" layoutY="90.0" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" pickOnBounds="false" scaleShape="false" text="Button" />
    </children>
 </AnchorPane>

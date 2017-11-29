@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import application.StateMachine.State;
+import application.CollisionChecker.CollisionType;
+import application.StateMachine.GameState;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -13,14 +14,13 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.Node;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import objects.Ball;
 import objects.Brick;
 import objects.MainBrick;
+import plugins.TrackIndicator;
+import objects.Brick.Type;
 
 public class GameScene extends Pane {
 	private MainBrick mainBrick = new MainBrick();
@@ -28,13 +28,11 @@ public class GameScene extends Pane {
 	private DataProperties dataProperties;
 	private Timeline timeline;
 	private LevelLoader levelLoader;
-	private CollisionHandler collisionHandler;
 	private List<Brick> bricks = Collections.synchronizedList(new ArrayList<>());
 	
 	public GameScene() {
 		setPrefWidth(Constant.GAME_SCENE_WIDTH);
 		setPrefHeight(Constant.GAME_SCENE_HEIGHT);
-		setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, null, null)));
 		
 		dataProperties = new DataProperties();
 	}
@@ -49,7 +47,8 @@ public class GameScene extends Pane {
 	public class DataProperties {
 		public DoubleProperty scoreProperty = new SimpleDoubleProperty(0);
 		public IntegerProperty levelProperty = new SimpleIntegerProperty(1);
-		public IntegerProperty livesProperty = new SimpleIntegerProperty(Constant.INITIAL_LIVES);
+		public IntegerProperty lifeProperty = new SimpleIntegerProperty(Constant.INITIAL_LIVES);
+		public DoubleProperty lifeProgressProperty = new SimpleDoubleProperty(1.0);
 		
 		private DataProperties() { }
 		public Double getScore() { return scoreProperty.get(); }
@@ -64,11 +63,12 @@ public class GameScene extends Pane {
 			}
 		}
 		public void loseLive() {
-			int leftLives = livesProperty.get();
+			int leftLives = lifeProperty.get();
 			if (leftLives <= 0) {
-				StateMachine.getInstance().changeToState(State.GAME_OVER);
+				showSummary(false);
 			} else {
-				livesProperty.set(leftLives - 1);
+				lifeProperty.set(leftLives - 1);
+				lifeProgressProperty.set((leftLives - 1.0) / Constant.INITIAL_LIVES);
 			}
 		}
 	}
@@ -81,36 +81,60 @@ public class GameScene extends Pane {
 	}
 	private void initGameHelper() {
 		levelLoader = new LevelLoader(this);
-		collisionHandler = new CollisionHandler(ball);
 	}
 	private void initObjectLayout() {
 		mainBrick.setLayoutX((getWidth() - mainBrick.getWidth())/ 2);
-		mainBrick.setLayoutY(getHeight() - mainBrick.getHeight());
+		mainBrick.setLayoutY(getHeight() - mainBrick.getHeight() - 20);
 		ball.setCenterX(getWidth() / 2);
 		ball.setCenterY(getHeight() - 5 * mainBrick.getHeight());
 	}
 	private void initTimeLine() {
 		timeline = new Timeline();
 		timeline.setCycleCount(Timeline.INDEFINITE);
-		KeyFrame keyFrame = new KeyFrame(Duration.millis(1), (event) -> {
-			if (bricks.size() == 0) enterNextLevel();
+		KeyFrame keyFrame = new KeyFrame(Duration.millis(2), (event) -> {
 			ball.move();
+			checkIfLoseLife();
 			handleCollision();
+			if (bricks.size() <= 0) // TODO ÑÓÊ±µ¯³ö
+				showSummary(true);
 		});
 		timeline.getKeyFrames().add(keyFrame);
 	}
 	
+	private void checkIfLoseLife() {
+		if (ball.getBoundsInParent().getMaxY() >= getHeight())
+			dataProperties.loseLive();
+	}
 	private void handleCollision() {
-		collisionHandler.withMainBrick(mainBrick);
+		CollisionType type = ball.getCollisionType(mainBrick);
+		if (type != CollisionType.NO)
+			changeSpeed(type);
 		
 		for (Brick brick: bricks) {
-			if (collisionHandler.withGeneralBrick(brick)) {
+			type = ball.getCollisionType(brick);
+			if (type != CollisionType.NO) {
+				changeSpeed(type);
+				brick.setHp(brick.getHp() - ball.getPower());
 				if (brick.getHp() <= 0) {
 					dataProperties.addScore((double) brick.getScore());
+					handleSpecialBrick(brick);
 					destroyObject(brick);
 				}
 				break;
 			}
+		}
+	}
+	private void changeSpeed(CollisionType type) {
+		switch(type) {
+			case HORIZON: ball.reverseSpeedX();break;
+			case VERTICAL: ball.reverseSpeedY();break;
+			case POINT: ball.reverseSpeedX();ball.reverseSpeedY();break;
+			default: break;
+		}
+	}
+	private void handleSpecialBrick(Brick brick) {
+		if (brick.getType() == Type.BLUE) {
+			new TrackIndicator(this, ball).showTracker();
 		}
 	}
 	private void destroyObject(final Brick brick) {
@@ -129,11 +153,26 @@ public class GameScene extends Pane {
 	public void pauseTimeLine() { timeline.pause(); }
 	public void resumeTimeLine() { timeline.play(); }
 	
-	public void enterNextLevel() { 
-		pauseTimeLine();
-		dataProperties.nextLevel();
+	public void restartGame() {
+		bricks.clear();
+		levelLoader.load(dataProperties.getLevel());
 		
 		initObjectLayout();
+		ball.reset();
+	}
+	public void showSummary(boolean isWin) {
+		if (isWin) {
+			StateMachine.getInstance().changeToState(GameState.LEVEL_COMPLETE);
+		} else {
+			StateMachine.getInstance().changeToState(GameState.GAME_OVER);
+		}
+		pauseTimeLine();
+		initObjectLayout();
+		ball.reset();
+	}
+	public void enterNextLevel() {
+		dataProperties.loseLive();
+		dataProperties.nextLevel();
 		levelLoader.load(dataProperties.getLevel()); 
 	}
 	

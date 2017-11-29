@@ -7,7 +7,9 @@ import java.util.Set;
 
 import application.GameScene.DataProperties;
 import components.GameLayout;
+import components.LevelCompleteScene;
 import components.ScoreBoard;
+import components.StateBar;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -16,11 +18,12 @@ public class StateMachine {
 	private StateMachine() {}
 	public static StateMachine getInstance() { return instance; }
 	
-	public enum State {
-		BEGIN, LOADING, PAUSE, NEXT_LEVEL, GAME_OVER
+	public enum GameState {
+		BEGIN, RESTART, LOADING, PAUSE, GAME_OVER, EXIT,
+		LEVEL_COMPLETE, NEXT_LEVEL
 	}
 	public enum Attr {
-		STAGE, GAMESCENE, SCOREBOARD 
+		MAINSTAGE, GAMESCENE, SCOREBOARD, STATEBAR, SUMMARY
 	}
 	private Map<Attr, Object> attrs = Collections.synchronizedMap(new HashMap<Attr, Object>());
 	public Object getAttr(Attr name) { return attrs.get(name); }
@@ -28,27 +31,47 @@ public class StateMachine {
 	public void setAttr(Attr name, Object attr) { attrs.put(name, attr); }
 	public Set<Attr> getAttrNames() { return attrs.keySet(); }
 	
-	public void changeToState(State newState) {
+	public void changeToState(GameState newState) {
 		switch(newState) {
 			case BEGIN: beginGame();break;
 			case PAUSE: pauseGame();break;
+			case RESTART: restartGame();break;
+			case LEVEL_COMPLETE: showSummary();break;
 			case NEXT_LEVEL: enterNextLevel();break;
 			case GAME_OVER: GameOver();break;
+			case EXIT: exitGame();break;
 			default: break;
 		}
 	}
 	
+	private void restartGame() {
+		((Stage) getAttr(Attr.SUMMARY)).close();
+		((GameScene) getAttr(Attr.GAMESCENE)).restartGame();
+	}
+	private void showSummary() {
+		LevelCompleteScene summary = new LevelCompleteScene(true);
+		Stage sumStage = new Stage();
+		// TODO 禁止直接关闭Summary
+		sumStage.setScene(new Scene(summary));
+		
+		((Stage) getAttr(Attr.MAINSTAGE)).toBack();
+		sumStage.show();
+		setAttr(Attr.SUMMARY, sumStage);
+	}
 	private void beginGame() {
 		GameScene gameScene = new GameScene();
 		ScoreBoard scoreBoard = new ScoreBoard();
-		GameLayout gameLayout = new GameLayout(gameScene, scoreBoard);
-		((Stage) getAttr(Attr.STAGE)).setScene(new Scene(gameLayout));
+		StateBar stateBar = new StateBar();
+		GameLayout gameLayout = new GameLayout(gameScene, scoreBoard, stateBar);
+		((Stage) getAttr(Attr.MAINSTAGE)).setScene(new Scene(gameLayout));
 		setAttr(Attr.SCOREBOARD, scoreBoard);
 		setAttr(Attr.GAMESCENE, gameScene);
+		setAttr(Attr.STATEBAR, stateBar);
 		
 		gameScene.loadGame();
 		DataProperties dataProperties = gameScene.getData();
 		((ScoreBoard) getAttr(Attr.SCOREBOARD)).bindValue(dataProperties);
+		((StateBar) getAttr(Attr.STATEBAR)).bindValue(dataProperties.lifeProgressProperty);
 	}
 
 	private void pauseGame() {
@@ -56,8 +79,19 @@ public class StateMachine {
 	}
 	private void enterNextLevel() {
 		((GameScene) getAttr(Attr.GAMESCENE)).enterNextLevel();
+		((Stage) getAttr(Attr.SUMMARY)).close();
 	}
 	private void GameOver() {
+		LevelCompleteScene summary = new LevelCompleteScene(false);
+		Stage sumStage = new Stage();
+		// TODO 禁止直接关闭Summary
+		sumStage.setScene(new Scene(summary));
 		
+		((Stage) getAttr(Attr.MAINSTAGE)).toBack();
+		sumStage.show();
+		setAttr(Attr.SUMMARY, sumStage);
+	}
+	private void exitGame() {
+		((Stage) getAttr(Attr.MAINSTAGE)).close();
 	}
 }

@@ -5,14 +5,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<fx:root styleClass="left-panel" stylesheets="@../css/style.css" type="VBox" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root prefHeight="200.0" prefWidth="200.0" styleClass="top-panel" type="AnchorPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label styleClass="name-label" text="关卡" />
-      <Label fx:id="label_level" styleClass="value-label" text="0" />
-      <Label styleClass="name-label" text="剩余生命" />
-      <Label fx:id="label_lives" styleClass="value-label" text="3" />
-      <Label styleClass="name-label" text="得分" />
-      <Label fx:id="label_score" styleClass="value-label" text="0" />
+      <Label contentDisplay="CENTER" layoutX="8.0" layoutY="7.0" styleClass="name-label" text="得分 ：" AnchorPane.bottomAnchor="8.0" AnchorPane.topAnchor="7.0" />
+      <Label layoutX="409.0" layoutY="7.0" styleClass="name-label" text="关卡 ：" AnchorPane.bottomAnchor="8.0" AnchorPane.topAnchor="7.0" />
+      <Label fx:id="label_score" layoutX="53.0" layoutY="7.0" styleClass="value-label" text="0" AnchorPane.bottomAnchor="8.0" AnchorPane.topAnchor="7.0" />
+      <Label fx:id="label_level" layoutX="458.0" layoutY="7.0" styleClass="value-label" text="0" AnchorPane.bottomAnchor="8.0" AnchorPane.topAnchor="7.0" />
    </children>
 </fx:root>

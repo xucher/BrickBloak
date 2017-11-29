@@ -1,45 +1,54 @@
 package objects;
 
 import application.Constant;
+import javafx.scene.effect.ImageInput;
+import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+@SuppressWarnings("unused")
 public class Brick extends Rectangle {
 	// ÑªÁ¿
 	private int hp;
 	private int score;
-	public enum Style {
-		RED, YELLOW
+	private Type type;
+	public enum Type {
+		RED, YELLOW, BLUE, GENERAL
 	}; 
-	public Brick(Style style, int hp) {
+	public Brick(Type type, int hp) {
 		this.hp = hp;
 		this.score = 15;
-		
-//		setAdditionalStyle(style);
+		this.type = type;
 		setDefaultStyle();
-		setWidth(Constant.COMMON_BRICK_WIDTH);
-		setHeight(Constant.COMMON_BRICK_HEIGTH);
+		if (type != Type.GENERAL)
+			setAdditionalStyle(type);
 	}
 	
 	public int getHp() { return hp; }
 	public void setHp(int hp) { this.hp = hp; }
 	public int getScore() { return score; }
+	public Type getType() { return type;}
 	private void setDefaultStyle() {
-		setFill(Color.BEIGE);
-		Lighting lighting = new Lighting();
-		lighting.setSurfaceScale(135);
+		setWidth(Constant.COMMON_BRICK_WIDTH);
+		setHeight(Constant.COMMON_BRICK_HEIGTH);
+		setFill(Color.BEIGE);	
+		Light.Distant light = new Light.Distant();
+		light.setElevation(120);
+		Lighting lighting = new Lighting(light);
+		lighting.setSurfaceScale(2);
 		setEffect(lighting);
 	}
-	@SuppressWarnings("unused")
-	private void setAdditionalStyle(Style style) {
-		switch(style) {
+	
+	private void setAdditionalStyle(Type type) {
+		switch(type) {
 			case RED:
-				setStyle(getStyle() + "-fx-fill: red;");
-				break;
+				setStyle(getStyle() + "-fx-fill: red;");break;
 			case YELLOW:
-				setStyle(getStyle() + "-fx-fill: yellow;");
-				break;
+				setStyle(getStyle() + "-fx-fill: yellow;");break;
+			case BLUE:
+				setStyle(getStyle() + "-fx-fill: blue;");break;
 			default:
 				break;
 		}

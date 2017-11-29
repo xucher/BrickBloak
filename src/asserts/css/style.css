@@ -1,33 +1,31 @@
 /* welcome scene */
-#title.label {
-	-fx-font-size: 25;
+.title-label {
+	-fx-font-size: 35;
 }
 
-/* game scene layout*/
-.left-panel {
-	-fx-pref-width: 100;
-	-fx-pref-height: 600;
+/* game scene layout
+.game-layout {
+	-fx-background-image: url(../images/bg_brick1.jpg) 
+}*/
+.top-panel {
+	-fx-pref-width: 480;
+	-fx-pref-height: 30;
 }
 .center-panel {
-	-fx-pref-width: 800;
-	-fx-pref-height: 600;
+	-fx-pref-width: 480;
+	-fx-pref-height: 570;
 }
-
-/* scoreBoard */
-.name-label { }
-.value-label {
-	-fx-label-padding: 0 0 0 35;
+.bottom-panel {
+	-fx-pref-width: 480;
+	-fx-pref-height: 30;
+	-fx-background-color: rgb(128,128,128)
 }
-
-
-
-
 .scene-size {
-	-fx-pref-width: 900;
+	-fx-pref-width: 480;
 	-fx-pref-height: 600;
 }
-
 .button {
 	-fx-pref-width: 100;
 	-fx-pref-height: 30;
+	-fx-font-size: 14;
 }
