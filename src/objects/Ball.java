@@ -9,19 +9,18 @@ import javafx.scene.image.Image;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
-@SuppressWarnings("unused")
 public class Ball extends Circle {
 	private CollisionChecker collisionChecker;
-	private double speedX = 0.5;
-	private double speedY = -0.5;
+	private double speedX = 0.8;
+	private double speedY = -0.8;
 	private int power = 1;
 	
 	public Ball() {
 		super(Constant.BALL_RADIUS);
 		collisionChecker = new CollisionChecker(this);
-//		Image image = new Image("/asserts/images/ball.png", 30, 30, false, false,true);
-//		ImageInput imageInput = new ImageInput(image);
-//		setEffect(imageInput);
+		Image image = new Image("/asserts/images/ball.png", 20, 20, false, false,true);
+		ImageInput imageInput = new ImageInput(image);
+		setEffect(imageInput);
 	}
 
 	public CollisionType getCollisionType(Rectangle rectangle) { return collisionChecker.withRectangle(rectangle); }
@@ -31,21 +30,35 @@ public class Ball extends Circle {
 	public void setSpeedY(double speedY) { this.speedY = speedY; }
 	public int getPower() { return power;} 
 	public void reset() {
-		speedX = 0.5;
-		speedY = -0.5;
+		speedX = 1;
+		speedY = -1;
 	}
+//	public void move() {
+//		// 左右边界
+//		if (getCenterX() <= getRadius() ||
+//				getCenterX() >= Constant.GAME_SCENE_WIDTH - getRadius())
+//			speedX = -speedX;
+//		// 上下边界
+//		if (getCenterY() <= getRadius() ||
+//				getCenterY() >= Constant.GAME_SCENE_HEIGHT -getRadius())
+//			speedY = -speedY;
+//		
+//		 setCenterX(getCenterX() + speedX);
+//		 setCenterY(getCenterY() + speedY);
+//	}
 	public void move() {
-		// 左右边界
-		if (getCenterX() <= getRadius() ||
-				getCenterX() >= Constant.GAME_SCENE_WIDTH - getRadius())
-			speedX = -speedX;
-		// 上下边界
-		if (getCenterY() <= getRadius() ||
-				getCenterY() >= Constant.GAME_SCENE_HEIGHT -getRadius())
-			speedY = -speedY;
-		
-		 setCenterX(getCenterX() + speedX);
-		 setCenterY(getCenterY() + speedY);
+		Bounds bounds =getBoundsInParent();
+	// 左右边界
+	if (bounds.getMinX() <= 0 ||
+			bounds.getMaxX() >= Constant.GAME_SCENE_WIDTH)
+		speedX = -speedX;
+	// 上下边界
+	if (bounds.getMinY() <= 0 ||
+			bounds.getMaxY() >= Constant.GAME_SCENE_HEIGHT)
+		speedY = -speedY;
+	
+	 setLayoutX(getLayoutX() + speedX);
+	 setLayoutY(getLayoutY() + speedY);
 	}
 	public void reverseSpeedX() { speedX = -speedX; }
 	public void reverseSpeedY() { speedY = -speedY; }

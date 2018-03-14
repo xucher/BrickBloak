@@ -8,6 +8,7 @@ import application.CollisionChecker.CollisionType;
 import application.StateMachine.GameState;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
+import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -64,12 +65,16 @@ public class GameScene extends Pane {
 		}
 		public void loseLive() {
 			int leftLives = lifeProperty.get();
-			if (leftLives <= 0) {
-				showSummary(false);
-			} else {
+			if (leftLives >= 1) {
 				lifeProperty.set(leftLives - 1);
 				lifeProgressProperty.set((leftLives - 1.0) / Constant.INITIAL_LIVES);
+				if (leftLives == 1)
+					showSummary(false);
 			}
+		}
+		public void resetLife() { 
+			lifeProperty.set(Constant.INITIAL_LIVES);
+			lifeProgressProperty.set(1);
 		}
 	}
 	public DataProperties getData() { return dataProperties; }
@@ -85,8 +90,8 @@ public class GameScene extends Pane {
 	private void initObjectLayout() {
 		mainBrick.setLayoutX((getWidth() - mainBrick.getWidth())/ 2);
 		mainBrick.setLayoutY(getHeight() - mainBrick.getHeight() - 20);
-		ball.setCenterX(getWidth() / 2);
-		ball.setCenterY(getHeight() - 5 * mainBrick.getHeight());
+		ball.setLayoutX((getWidth() - ball.getRadius()) / 2);
+		ball.setLayoutY(getHeight() - 5 * mainBrick.getHeight());
 	}
 	private void initTimeLine() {
 		timeline = new Timeline();
@@ -116,6 +121,16 @@ public class GameScene extends Pane {
 				changeSpeed(type);
 				brick.setHp(brick.getHp() - ball.getPower());
 				if (brick.getHp() <= 0) {
+					if (brick.getType() == Type.RED) {
+						if (mainBrick.getScaleX() < 2) {
+							changeMainBrickScale(mainBrick.getScaleX() + 0.2);
+						}
+					}
+					if (brick.getType() == Type.YELLOW) {
+						if (mainBrick.getScaleX() > 0.8) {
+							changeMainBrickScale(mainBrick.getScaleX() - 0.2);
+						}
+					}
 					dataProperties.addScore((double) brick.getScore());
 					handleSpecialBrick(brick);
 					destroyObject(brick);
@@ -123,6 +138,14 @@ public class GameScene extends Pane {
 				break;
 			}
 		}
+	}
+	private void changeMainBrickScale(double scale) {
+		ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(1000), mainBrick);
+		scaleTransition.setFromX(mainBrick.getScaleX());
+		scaleTransition.setToX(scale);
+		scaleTransition.setCycleCount(1);
+		scaleTransition.setAutoReverse(false);
+		scaleTransition.play();
 	}
 	private void changeSpeed(CollisionType type) {
 		switch(type) {
@@ -153,25 +176,31 @@ public class GameScene extends Pane {
 	public void pauseTimeLine() { timeline.pause(); }
 	public void resumeTimeLine() { timeline.play(); }
 	
-	public void restartGame() {
-		bricks.clear();
-		levelLoader.load(dataProperties.getLevel());
-		
-		initObjectLayout();
-		ball.reset();
-	}
+
 	public void showSummary(boolean isWin) {
+		pauseTimeLine();
+		
 		if (isWin) {
 			StateMachine.getInstance().changeToState(GameState.LEVEL_COMPLETE);
 		} else {
 			StateMachine.getInstance().changeToState(GameState.GAME_OVER);
 		}
-		pauseTimeLine();
+		
 		initObjectLayout();
 		ball.reset();
+		mainBrick.reset();
+		dataProperties.resetLife();
+	}
+	public void restartGame() {
+		if (bricks.size() >= 0) {
+			for (Brick brick: bricks) {
+				getChildren().remove(brick);
+			}
+			bricks.clear();
+		}
+		levelLoader.load(dataProperties.getLevel());
 	}
 	public void enterNextLevel() {
-		dataProperties.loseLive();
 		dataProperties.nextLevel();
 		levelLoader.load(dataProperties.getLevel()); 
 	}

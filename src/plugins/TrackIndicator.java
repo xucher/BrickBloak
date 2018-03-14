@@ -42,7 +42,8 @@ public class TrackIndicator extends Polyline {
 	}
 	public void updateTrack() {
 		getPoints().clear();
-		Point startPoint = new Point(referent.getCenterX(), referent.getCenterY());
+		Point startPoint = new Point(referent.getLayoutX() + referent.getRadius()
+		, referent.getLayoutY() + referent.getRadius());
 		addPoint(startPoint);
 		addNextTwoNodes();
 	}

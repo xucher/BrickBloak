@@ -14,8 +14,8 @@ public class Constant {
 	// 球大小
 	public final static int BALL_RADIUS = 10;
 	// 一般砖块大小
-	public final static int COMMON_BRICK_WIDTH = 60;
-	public final static int COMMON_BRICK_HEIGTH = 15;
+	public final static int COMMON_BRICK_WIDTH = 65;
+	public final static int COMMON_BRICK_HEIGTH = 24;
 	
 	// 初始生命
 	public static int INITIAL_LIVES = 3;
