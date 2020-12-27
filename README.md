@@ -6,4 +6,4 @@
 - 游戏结束结算
 
 ### 类图设计
-![class diagram](https://raw.githubusercontent.com/xucher/BrickBlock/master/result/class-diagram.png)
+![class diagram](./result/class-diagram.png)
